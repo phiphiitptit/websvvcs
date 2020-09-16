@@ -1,12 +1,35 @@
 <?php
-    session_start();
-    $host ="localhost";
-    $username ="root";
-    $password = "";
-    $dbname ="studentdb";
-    
-    $con = mysqli_connect($host,$username,$password) or die(mysqli_error());
-    if($con){
-        mysqli_select_db($dbname) or die(mysqli_errno());
-    }
+class Database {
+	private $_connection;
+	private static $_instance; 
+	private $_host = "localhost";
+	private $_username = "root";
+	private $_password = "";
+	private $_database = "studentdb";
+
+	public static function getInstance() {
+		if(!self::$_instance) { 
+			self::$_instance = new self();
+		}
+		return self::$_instance;
+	}
+
+	public function __construct() {
+		$this->_connection = new mysqli($this->_host, $this->_username,	$this->_password, $this->_database);
+	
+
+		if(mysqli_connect_error()) {
+			trigger_error("Loi ket noi MySQL: " . mysqli_connect_error(),
+				 E_USER_ERROR);
+		}
+	}
+
+	private function __clone() { }
+
+	public function getConnection() {
+		return $this->_connection;
+	}
+}
+
+
 ?>

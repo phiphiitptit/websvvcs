@@ -1,3 +1,12 @@
+<?php  
+session_start();
+if(isset($_POST['submit'])){
+    include('../config/FuncDB.php');
+    $obj = new DbFunction();
+    $_SESSION['login']=$_POST['username'];
+    $obj->login($_POST['username'],$_POST['password']);
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,12 +33,11 @@
                     <form method="post">
                         <fieldset>
                         <div class="form-group">
-                                <input class="form-control" placeholder="Username"  id="id"name="id" type="text" autofocus autocomplete="off">
+                                <input class="form-control" placeholder="Username"  id="username" name="username" type="text" autofocus autocomplete="off">
                                 </div>
                                 <div class="form-group">
-                                    <input class="form-control" placeholder="Password" id="password"name="password" type="password" value="">
+                                    <input class="form-control" placeholder="Password" id="password" name="password" type="password" value="">
                                 </div>
-                                <!-- Change this to a button or input when using this as a form -->
                                 <input type="submit" value="login" name="submit" class="btn btn-lg btn-success btn-block">
                             
                         </fieldset>
