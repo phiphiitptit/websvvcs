@@ -1,19 +1,11 @@
 <?php
 session_start();
 include 'config.php';
-if (isset($_SESSION['user_data'])) {
-	if ($_SESSION['user_data']['usertype'] != 1) {
+if(isset($_SESSION['user_data'])){
+	if($_SESSION['user_data']['usertype']!=1){
 		header("Location:student_dasboard.php");
 	}
-	echo "Techer" . $_SESSION['user_data']['name'];
-}
-$data = array();
-$qr = mysqli_query($con, "select * from user");
-while ($row = mysqli_fetch_assoc($qr)) {
-	array_push($data, $row);
-}
-
-
+?>
 ?>
 <!DOCTYPE html>
 <html>
@@ -77,7 +69,7 @@ while ($row = mysqli_fetch_assoc($qr)) {
                 <div class="sidebar-sticky pt-3">
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link active" href="">
+                            <a class="nav-link active" href=teacher_dasboard.php>
                                 <span class="iconify" data-icon="bi:file-person" data-inline="false"></span>
                                 Danh sách người dùng <span class="sr-only">(current)</span>
                             </a>
@@ -95,51 +87,47 @@ while ($row = mysqli_fetch_assoc($qr)) {
                     </div>
 
                 </div>
-                <div class="table-responsive">
-                    <table class="table table-striped table-sm" style="text-align: center;">
-                        <thead>
-                            <tr>
-                                <th>STT</th>
-                                <th>Họ tên</th>
-                                <th>Email</th>
-                                <th>Công việc</th>
-                                <th>Điện thoại</th>
-                                <th>Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-							foreach ($data as $d) {
-							?>
-                            <tr>
-                                <td><?php echo $d['id']; ?></td>
-                                <td><?php echo $d['name']; ?></td>
-                                <td><?php echo $d['email']; ?></td>
-                                <td>
-                                    <?php if ($d['usertype'] == '1') {
-											echo "Giáo viên";
-										} else {
-											echo "Học sinh";
-										} ?>
-                                </td>
-                                <td><?php echo $d['telephone']; ?></td>
+                <form action="add_student_post.php" method="post">
+                    <div class="row">
+                        <?php if(isset($_REQUEST['error'])){ ?>
+                        <div class="col-lg-12">
+                            <span class="alert alert-danger"
+                                style="display: block;"><?php echo $_REQUEST['error']; ?></span>
+                        </div>
+                        <?php } ?>
+                    </div>
+                    <div class="row">
+                        <?php if(isset($_REQUEST['success'])){ ?>
+                        <div class="col-lg-12">
+                            <span class="alert alert-success"
+                                style="display: block;"><?php echo $_REQUEST['success']; ?></span>
+                        </div>
+                        <?php } ?>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="inputName">Họ tên</label>
+                        <input type="text" class="form-control" name="name" required="required" id="inputName" placeholder="VD: st005">
+                    </div>
 
+                    <div class="form-group col-md-6">
+                        <label for="inputUser">Tài khoản</label>
+                        <input type="text" class="form-control" id="inputUser" name="username" required="required"placeholder="VD: st005">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="inputPassword">Mật khẩu</label>
+                        <input type="password" class="form-control" id="inputPassword" name="password" required="required" placeholder="Mật khẩu">
+                    </div>
 
-                                <td><a class="btn btn-info" href="edit_result.php?id=<?php echo $d['id']; ?>">
-                                        Xem</a>
-                                    <a class="btn btn-info" href="edit_result.php?id=<?php echo $d['id']; ?>">
-                                        Sửa</a>
-                                    <a class="btn btn-info" href="edit_result.php?id=<?php echo $d['id']; ?>">
-                                        Xóa</a>
-                                </td>
-
-                            </tr>
-                            <?php
-							}
-							?>
-                        </tbody>
-                    </table>
-                </div>
+                    <div class="form-group col-md-6">
+                        <label for="inputEmail">Email</label>
+                        <input type="email" class="form-control" id="inputEmail" name="email" required="required" placeholder="Email">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="inputTel">Điện thoại</label>
+                        <input type="text" class="form-control" id="inputTel" name="telephone" required="required" placeholder="VD: 0333318182">
+                    </div>
+                    <button type="submit" class="btn btn-primary col-md-6">Đăng ký</button>
+                </form>
             </main>
         </div>
     </div>
@@ -156,3 +144,8 @@ while ($row = mysqli_fetch_assoc($qr)) {
 </body>
 
 </html>
+<?php
+}
+else{
+	header("Location:login.php?error=UnAuthorized Access");
+}
