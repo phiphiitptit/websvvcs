@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th9 21, 2020 lúc 10:12 PM
+-- Thời gian đã tạo: Th9 22, 2020 lúc 09:40 PM
 -- Phiên bản máy phục vụ: 10.4.13-MariaDB
 -- Phiên bản PHP: 7.2.31
 
@@ -79,7 +79,8 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`id`, `username`, `password`, `name`, `email`, `telephone`, `usertype`, `created_at`) VALUES
-(1, 'phigv', 'a5d3d16023e73246be0d42f8757058ae', 'Phi Phi', 'phiphi@gmail.com', '09392934', '1', '2020-09-20 02:42:12');
+(1, 'phigv', 'a5d3d16023e73246be0d42f8757058ae', 'Phi Phi', 'phiphi@gmail.com', '09392934', '1', '2020-09-20 02:42:12'),
+(2, 'student01', 'b0f272966386057c96b4e0bc3b2ebc0d', 'Bùi Đức Phi', 'supovipxtb@gmail.com', '0163 371 2623', '2', '2020-09-22 20:34:34');
 
 -- --------------------------------------------------------
 
@@ -160,7 +161,7 @@ ALTER TABLE `subject`
 -- AUTO_INCREMENT cho bảng `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT cho bảng `usertypes`
