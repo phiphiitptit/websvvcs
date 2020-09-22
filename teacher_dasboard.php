@@ -127,7 +127,7 @@ while ($row = mysqli_fetch_assoc($qr)) {
 
                                 <td><a class="btn btn-info" href="edit_result.php?id=<?php echo $d['id']; ?>">
                                         Xem</a>
-                                    <a class="btn btn-info" href="edit_result.php?id=<?php echo $d['id']; ?>">
+                                    <a class="btn btn-info" href="edit_student.php?id=<?php echo $d['id']; ?>">
                                         Sửa</a>
                                     <a class="btn btn-info" href="edit_result.php?id=<?php echo $d['id']; ?>">
                                         Xóa</a>
