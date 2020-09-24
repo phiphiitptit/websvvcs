@@ -6,43 +6,23 @@ if (isset($_SESSION['user_data'])) {
     if ($_SESSION['user_data']['usertype'] != 1) {
         header("Location:student_dasboard.php");
     }
-    $editinfo = false;
     $name = "";
     $email = "";
     $id = 0;
     $password = "";
     $telephone = "";
     $username = "";
-    $update = false;
-    if (isset($_GET['edit'])) {
-        $editinfo = true;
-        if (isset($_SESSION['user_data']['id'])) {
-            $iduser = $_SESSION['user_data']['id'];
-            $record = mysqli_query($con, "SELECT * FROM user WHERE id=$iduser");
-            if (count(array($record)) == 1) {
-                $data = mysqli_fetch_array($record);
-                $name = $data['name'];
-                $username = $data['username'];
-                $password = $data['password'];
-                $email = $data['email'];
-                $telephone = $data['telephone'];
-            }
-        }
-    }
-
-    if (isset($_GET['id'])) {
-        $id = $_GET['id'];
-        $update = true;
-        $record = mysqli_query($con, "SELECT * FROM user WHERE id=$id");
+    if (isset($_SESSION['user_data']['id'])) {
+        $iduser = $_SESSION['user_data']['id'];
+        $record = mysqli_query($con, "SELECT * FROM user WHERE id=$iduser");
         if (count(array($record)) == 1) {
             $data = mysqli_fetch_array($record);
             $name = $data['name'];
-            $username = $data['username'];
-            $password = $data['password'];
             $email = $data['email'];
             $telephone = $data['telephone'];
         }
     }
+
 
 
 
@@ -111,21 +91,15 @@ if (isset($_SESSION['user_data'])) {
 
                 <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <?php if ($update != true and $editinfo!=true) : ?>
-                            <div class="btn-group mr-2">
-                                <a class="btn btn-info" href="add_student.php">
-                                    Thêm SV</a>
-                            </div>
-                        <?php else : ?>
-                            <div class="btn-group mr-2">
-                                <a class="btn btn-info" href="teacher_dasboard.php">
-                                    Quay lại</a>
-                            </div>
-                        <?php endif ?>
+
+                        <div class="btn-group mr-2">
+                            <a class="btn btn-info" href="teacher_dasboard.php">
+                                Quay lại</a>
+                        </div>
 
 
                     </div>
-                    <form action="add_student_post.php" method="post">
+                    <form action="edit_info_post.php" method="post">
                         <div class="row">
                             <?php if (isset($_REQUEST['error'])) { ?>
                                 <div class="col-lg-12">
@@ -142,22 +116,13 @@ if (isset($_SESSION['user_data'])) {
                         </div>
                         <div class="form-group col-md-6">
 
-                            <input type="hidden" class="form-control" name="id" value="<?php echo $id; ?>">
+                            <input type="hidden" class="form-control" name="id" value="<?php echo $iduser; ?>">
                         </div>
                         <div class="form-group col-md-6">
                             <label for="inputName">Họ tên</label>
                             <input type="text" class="form-control" name="name" required="required" id="inputName" value="<?php echo $name; ?>">
                         </div>
-                       
-                        <div class="form-group col-md-6">
-                            <label for="inputUser">Tài khoản</label>
-                            <input type="text" class="form-control" id="inputUser" name="username" required="required" value="<?php echo $username; ?>">
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label for="inputPassword">Mật khẩu</label>
-                            <input type="password" class="form-control" id="inputPassword" name="password" required="required" value="<?php echo $password; ?>">
-                        </div>
-                     
+
                         <div class="form-group col-md-6">
                             <label for="inputEmail">Email</label>
                             <input type="email" class="form-control" id="inputEmail" name="email" required="required" value="<?php echo $email; ?>">
@@ -166,11 +131,9 @@ if (isset($_SESSION['user_data'])) {
                             <label for="inputTel">Điện thoại</label>
                             <input type="text" class="form-control" id="inputTel" name="telephone" required="required" value="<?php echo $telephone; ?>">
                         </div>
-                        <?php if ($update == true ) : ?>
-                            <button class="btn btn-primary col-md-6" type="submit" name="update" style="background: #556B2F;">Cập nhật</button>
-                        <?php else : ?>
-                            <button type="submit" class="btn btn-primary col-md-6" name="save">Đăng ký</button>
-                        <?php endif ?>
+
+                        <button class="btn btn-primary col-md-6" type="submit" name="update" style="background: #556B2F;">Cập nhật</button>
+
 
                     </form>
                 </main>

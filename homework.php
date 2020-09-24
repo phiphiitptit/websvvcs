@@ -6,14 +6,12 @@ if (isset($_SESSION['user_data'])) {
 		header("Location:student_dasboard.php");
 	}
 }
-
 $data = array();
-$count=0;
-$qr = mysqli_query($con, "select * from user");
+$count=1;
+$qr = mysqli_query($con, "select * from homework");
 while ($row = mysqli_fetch_assoc($qr)) {
 	array_push($data, $row);
 }
-
 
 ?>
 <!DOCTYPE html>
@@ -81,8 +79,8 @@ while ($row = mysqli_fetch_assoc($qr)) {
                     class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 
                     <div class="btn-group mr-2">
-                        <a class="btn btn-info" href="add_student.php">
-                            Thêm SV</a>
+                        <a class="btn btn-info" href="add_homework.php">
+                            Thêm Bài tập</a>
                     </div>
 
                 </div>
@@ -91,10 +89,9 @@ while ($row = mysqli_fetch_assoc($qr)) {
                         <thead>
                             <tr>
                                 <th>STT</th>
-                                <th>Họ tên</th>
-                                <th>Email</th>
-                                <th>Công việc</th>
-                                <th>Điện thoại</th>
+                                <th>Bài tập</th>
+                                <th>Kích thước</th>
+                                <th>Ngày tạo</th>
                                 <th>Thao tác</th>
                             </tr>
                         </thead>
@@ -103,24 +100,14 @@ while ($row = mysqli_fetch_assoc($qr)) {
 							foreach ($data as $d) {
 							?>
                             <tr>
-                                <td><?php echo ++$count; ?></td>
-                                <td><?php echo $d['name']; ?></td>
-                                <td><?php echo $d['email']; ?></td>
+                                <td><?php echo $count++; ?></td>
+                                <td><?php echo $d['subject_name']; ?></td>
+                                <td><?php echo floor($d['size']) . ' KB'; ?></td>
+                                <td><?php echo $d['created_at']; ?></td>
                                 <td>
-                                    <?php if ($d['usertype'] == '1') {
-											echo "Giáo viên";
-										} else {
-											echo "Học sinh";
-										} ?>
-                                </td>
-                                <td><?php echo $d['telephone']; ?></td>
-
-
-                                <td><a class="btn btn-info" href="view_info.php?id=<?php echo $d['id']; ?>">
-                                        Xem</a>
-                                    <a class="btn btn-info" href="add_student.php?id=<?php echo $d['id']; ?>">
-                                        Sửa</a>
-                                    <a class="btn btn-info" href="add_student_post.php?iddelete=<?php echo $d['id']; ?>" onclick="return confirm('Bạn có chắc chắn xóa?')">
+                                    <a class="btn btn-info" href="add_homework_post.php?id=<?php echo $d['id']; ?>">
+                                        Dowload</a>
+                                    <a class="btn btn-info" href="add_homework_post.php?iddelete=<?php echo $d['id']; ?>" onclick="return confirm('Bạn có chắc chắn xóa?')">
                                         Xóa</a>
                                 </td>
 

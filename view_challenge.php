@@ -6,45 +6,55 @@ if (isset($_SESSION['user_data'])) {
     if ($_SESSION['user_data']['usertype'] != 1) {
         header("Location:student_dasboard.php");
     }
-    $editinfo = false;
-    $name = "";
-    $email = "";
-    $id = 0;
-    $password = "";
-    $telephone = "";
-    $username = "";
-    $update = false;
-    if (isset($_GET['edit'])) {
-        $editinfo = true;
-        if (isset($_SESSION['user_data']['id'])) {
-            $iduser = $_SESSION['user_data']['id'];
-            $record = mysqli_query($con, "SELECT * FROM user WHERE id=$iduser");
-            if (count(array($record)) == 1) {
-                $data = mysqli_fetch_array($record);
-                $name = $data['name'];
-                $username = $data['username'];
-                $password = $data['password'];
-                $email = $data['email'];
-                $telephone = $data['telephone'];
-            }
-        }
-    }
 
+    $name = "";
+    $hint = "";
+    $update = false;
     if (isset($_GET['id'])) {
         $id = $_GET['id'];
         $update = true;
-        $record = mysqli_query($con, "SELECT * FROM user WHERE id=$id");
+        $record = mysqli_query($con, "SELECT * FROM challengequizz WHERE id=$id");
         if (count(array($record)) == 1) {
             $data = mysqli_fetch_array($record);
             $name = $data['name'];
-            $username = $data['username'];
-            $password = $data['password'];
-            $email = $data['email'];
-            $telephone = $data['telephone'];
+            $hint = $data['hint'];
         }
     }
+    if (isset($_POST['submit'])) { // if save button on the form is clicked
+        // name of the uploaded file
+        $idfile = $_GET['id'];
+        $desfolder = 'challenge/chall' . $idfile;
 
+        $results_array = array();
 
+        if (is_dir($desfolder)) {
+            if ($handle = opendir($desfolder)) {
+                //Notice the parentheses I added:
+                while (($file = readdir($handle)) !== FALSE) {
+                    $results_array[] = $file;
+                }
+                closedir($handle);
+            }
+        }
+        $answer = $_POST['answer'];
+        //Output findings
+        $check = false;
+        $show ="";
+        foreach ($results_array as $value) {
+            if (basename($value,".txt") == $answer) {
+                $show = $value;
+                $check=true;
+                break;
+            } 
+        }
+        if($check){
+            header("Location:challenge/chall".$idfile."/".$value);
+        }
+        else{
+            header("Location:view_challenge.php?id=" . $id . "&error=Thử thách thất bại");
+        }
+       
+    }
 
 ?>
     <!DOCTYPE html>
@@ -95,14 +105,11 @@ if (isset($_SESSION['user_data'])) {
             <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
-            <ul class="navbar-nav ">
-
-                <li class="nav-item">
-                    <a class="nav-link " href="logout.php">Đăng xuất</a>
+            <ul class="navbar-nav px-3">
+                <li class="nav-item text-nowrap">
+                    <a class="nav-link" href="logout.php">Đăng xuất</a>
                 </li>
             </ul>
-
         </nav>
 
         <div class="container-fluid">
@@ -111,21 +118,21 @@ if (isset($_SESSION['user_data'])) {
 
                 <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <?php if ($update != true and $editinfo!=true) : ?>
+                        <?php if ($update != true) : ?>
                             <div class="btn-group mr-2">
-                                <a class="btn btn-info" href="add_student.php">
-                                    Thêm SV</a>
+                                <a class="btn btn-info" href="add_challenge.php">
+                                    Thêm Challenge</a>
                             </div>
                         <?php else : ?>
                             <div class="btn-group mr-2">
-                                <a class="btn btn-info" href="teacher_dasboard.php">
+                                <a class="btn btn-info" href="challenge.php">
                                     Quay lại</a>
                             </div>
                         <?php endif ?>
 
 
                     </div>
-                    <form action="add_student_post.php" method="post">
+                    <form method="post">
                         <div class="row">
                             <?php if (isset($_REQUEST['error'])) { ?>
                                 <div class="col-lg-12">
@@ -145,32 +152,21 @@ if (isset($_SESSION['user_data'])) {
                             <input type="hidden" class="form-control" name="id" value="<?php echo $id; ?>">
                         </div>
                         <div class="form-group col-md-6">
-                            <label for="inputName">Họ tên</label>
-                            <input type="text" class="form-control" name="name" required="required" id="inputName" value="<?php echo $name; ?>">
-                        </div>
-                       
-                        <div class="form-group col-md-6">
-                            <label for="inputUser">Tài khoản</label>
-                            <input type="text" class="form-control" id="inputUser" name="username" required="required" value="<?php echo $username; ?>">
+                            <label for="inputName">Tên Challenge</label>
+                            <input type="text" class="form-control" name="ChallName" required="required" id="inputName" value="<?php echo $name; ?>" readonly>
                         </div>
                         <div class="form-group col-md-6">
-                            <label for="inputPassword">Mật khẩu</label>
-                            <input type="password" class="form-control" id="inputPassword" name="password" required="required" value="<?php echo $password; ?>">
-                        </div>
-                     
-                        <div class="form-group col-md-6">
-                            <label for="inputEmail">Email</label>
-                            <input type="email" class="form-control" id="inputEmail" name="email" required="required" value="<?php echo $email; ?>">
+                            <label for="inputName">Hint</label>
+                            <input type="text" class="form-control" name="hint" required="required" id="inputName" value="<?php echo $hint; ?>" readonly>
                         </div>
                         <div class="form-group col-md-6">
-                            <label for="inputTel">Điện thoại</label>
-                            <input type="text" class="form-control" id="inputTel" name="telephone" required="required" value="<?php echo $telephone; ?>">
+                            <label for="inputAnswer">Đáp án</label>
+                            <input type="text" class="form-control" name="answer" required="required" id="inputAnswer">
                         </div>
-                        <?php if ($update == true ) : ?>
-                            <button class="btn btn-primary col-md-6" type="submit" name="update" style="background: #556B2F;">Cập nhật</button>
-                        <?php else : ?>
-                            <button type="submit" class="btn btn-primary col-md-6" name="save">Đăng ký</button>
-                        <?php endif ?>
+
+
+                        <button type="submit" class="btn btn-primary col-md-6" name="submit">Submit Challenge</button>
+
 
                     </form>
                 </main>
