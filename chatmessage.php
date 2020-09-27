@@ -3,46 +3,46 @@ session_start();
 include 'config.php';
 if (isset($_SESSION['user_data'])) {
 
-    if ($_SESSION['user_data']['usertype'] != 1) {
-        header("Location:student_dasboard.php");
+
+    $id = $_SESSION['user_data']['id'];
+
+    $qr = mysqli_query($con, "SELECT user.name,chat_message.to_user_id,chat_message.title,chat_message.msg,chat_message.created_at,chat_message.id
+         FROM  chat_message
+         Join user ON user.id=chat_message.to_user_id
+         where chat_message.from_user_id=$id
+         order by chat_message.id");
+    $data_send = array();
+    $count = 0;
+
+    while ($row = mysqli_fetch_assoc($qr)) {
+        array_push($data_send, $row);
     }
-    $name = "";
-    $email = "";
-    $id = 0;
-    $password = "";
-    $telephone = "";
-    $username = "";
+    $qr = mysqli_query($con, "SELECT user.name,chat_message.from_user_id,chat_message.title,chat_message.msg,chat_message.created_at,chat_message.id
+    FROM  chat_message
+    left join user ON user.id=chat_message.from_user_id
+    where chat_message.status_mes=0 and chat_message.to_user_id=$id
+    order by chat_message.from_user_id");
+    $data_noseen = array();
+    while ($row = mysqli_fetch_assoc($qr)) {
+        array_push($data_noseen, $row);
+    }
+    $qr = mysqli_query($con, "SELECT user.name,chat_message.from_user_id,chat_message.title,chat_message.msg,chat_message.created_at,chat_message.id
+    FROM  chat_message
+    left Join user ON user.id=chat_message.from_user_id
+    where chat_message.status_mes=1 and chat_message.to_user_id=$id
+    order by chat_message.from_user_id");
+    $data_seen = array();
+    while ($row = mysqli_fetch_assoc($qr)) {
+        array_push($data_seen, $row);
+    }
+        if (isset($_GET['id'])) {
+            $id = $_GET['id'];
+            $qr = mysqli_query($con, "UPDATE chat_message SET status_mes=1 WHERE id=$id");
+            if($qr){
+                header("Location:chatmessage.php");
+            }
+        }
     $update = false;
-
-    if (isset($_GET['id'])) {
-        $id = $_GET['id'];
-        $update = true;
-        $record = mysqli_query($con, "SELECT * FROM user WHERE id=$id");
-        if (count(array($record)) == 1) {
-            $data = mysqli_fetch_array($record);
-            $name = $data['name'];
-            // $username = $data['username'];
-            // $password = $data['password'];
-            $email = $data['email'];
-            $telephone = $data['telephone'];
-        }
-    }
-
-    if (isset($_POST['submit'])) {
-
-        $id_send = $_SESSION['user_data']['id'];
-        $id_receive = $_GET['id'];
-        $msg = $_POST['msg'];
-
-        $qr = "INSERT INTO chat (to_user_id,from_user_id,msg,created_at) values ($id_send,$id_receive,'$msg','" . date('Y-m-d H:i:s') . "')";
-
-        $run = mysqli_query($con, $qr);
-
-        if ($run) {
-            echo "<embed loop='false' src='chat.wav' hidden='true' autoplay='true'/>";
-        }
-    }
-
 ?>
     <!DOCTYPE html>
     <html>
@@ -51,7 +51,6 @@ if (isset($_SESSION['user_data'])) {
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <title>Dashboard</title>
-        <link rel="manifest" href="/docs/4.5/assets/img/favicons/manifest.json">
 
         <!-- Bootstrap core CSS -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -84,26 +83,7 @@ if (isset($_SESSION['user_data'])) {
         <!-- Custom styles for this template -->
         <link href="dashboard.css" rel="stylesheet">
         <link href="chat.css" rel="stylesheet">
-        <script>
-            function ajax() {
-
-                var req = new XMLHttpRequest();
-
-                req.onreadystatechange = function() {
-
-                    if (req.readyState == 4 && req.status == 200) {
-
-                        document.getElementById('chat').innerHTML = req.responseText;
-                    }
-                }
-                req.open('GET', 'chat_post.php?idr=<?php echo $id; ?>&ids=<?php echo $_SESSION['user_data']['id']; ?>', true);
-                req.send();
-
-            }
-            setInterval(function() {
-                ajax()
-            }, 1000);
-        </script>
+       
     </head>
 
     <body>
@@ -123,77 +103,152 @@ if (isset($_SESSION['user_data'])) {
             <div class="row">
                 <?php include 'teacher_menu.php' ?>
                 <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-                    <div class="col-lg-2">
-                        <div class="btn-group mr-2">
-                            <a class="btn btn-info" href="teacher_dasboard.php">
-                                Quay lại</a>
-                        </div>
-                    </div>
-                    <div class="container padding-bottom-3x mb-2">
-                        <div class="row">
 
-                            <div class="col-lg-4">
-                                <aside class="user-info-wrapper">
+                    <div class="container">
 
-                                    <div class="user-info">
-                                        <div class="user-avatar">
-                                            <a class="edit-avatar" href="#"></a><img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="User"></div>
-                                        <div class="user-data">
-                                            <h4><?php echo $name; ?></h4>
-                                        </div>
-                                    </div>
-                                </aside>
-                            </div>
-                            <div class="col-lg-8 row align-items-center">
-                                <div class="padding-top-2x mt-2 hidden-lg-up"></div>
-                                <!-- Wishlist Table-->
-                                <div class="table-responsive wishlist-table margin-bottom-none">
-                                    <table class="table">
+
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a class="btn btn-info" href="#send">Tin nhắn gửi đi</a></li>
+                            <li><a class="btn btn-info" href="#noseen">Tin nhắn chưa xem</a></li>
+                            <li><a class="btn btn-info" href="#seen">Tin nhắn đã xem</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                            <div id="send" class="tab-pane fade in active">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-sm" style="text-align: center;">
                                         <thead>
                                             <tr>
-                                                <th>Chat với <?php echo $name ?></th>
-                                                <th class="text-center"><a class="btn btn-sm btn-outline-success" href="view_info.php?id=<?php echo $id ?>">Quay lại</a></th>
+                                                <th>STT</th>
+                                                <th>Người nhận</th>
+                                                <th>Ngày gửi</th>
+                                                <th>Tiêu đề</th>
+                                                <th>Thao tác</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <div class="table-responsive">
-                                                <table class="table table-striped table-sm" style="text-align: center;">
-                                                    <thead>
-                                                        <form method="post">
-                                                            <div class="col-sm-12 col-sm-offset-4 frame">
-                                                                <div id="chat_box">
-                                                                    <div id="chat"></div>
-                                                                </div>
-                                                                <div>
-                                                                    <div class="msj-rta macro">
-                                                                        <div class="text text-r" style="background:whitesmoke !important">
-                                                                            <input class="mytext" name="msg" placeholder="Type a message" />
-                                                                            <input type="submit" name="submit" value="Gửi" />
-                                                                        </div>
+                                            <?php
+                                            $count = 0;
+                                            foreach ($data_send as $d) {
+                                            ?>
+                                                <tr>
+                                                    <td><?php echo ++$count; ?></td>
+                                                    <td><?php echo $d['name']; ?></td>
+                                                    <td><?php echo $d['created_at']; ?></td>
+                                                    <td><?php echo $d['title']; ?></td>
+                                                   
+                                                    <td><a class="btn btn-info" name="seenmes" href="edit_message.php?id=<?php echo $d['id']; ?>&edit=false">
+                                                            Xem</a>
+                                                            <a class="btn btn-info" name="edit" href="edit_message.php?id=<?php echo $d['id']; ?>&edit=true">
+                                                            Sửa</a>
+                                                            <a class="btn btn-info" name="delete" href="edit_message_post.php?id=<?php echo $d['id']; ?>">
+                                                            Xóa</a>
+                                                    </td> 
 
-                                                                    </div>
-                                                                    <div style="padding:10px;">
-                                                                        <span class="glyphicon glyphicon-share-alt"></span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </form>
-                                                    </thead>
-                                                </table>
-                                            </div>
+                                                </tr>
+                                            <?php
+                                            }
+                                            ?>
                                         </tbody>
                                     </table>
                                 </div>
-
                             </div>
+                            <div id="noseen" class="tab-pane fade">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-sm" style="text-align: center;">
+                                        <thead>
+                                            <tr>
+                                                <th>STT</th>
+                                                <th>Người gửi</th>
+                                                <th>Ngày gửi</th>
+                                                <th>Tiêu đề</th>
+                                                <th>Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php
+                                            $count = 0;
+                                            foreach ($data_noseen as $d) {
+                                            ?>
+                                                <tr>
+                                                    <td><?php echo ++$count; ?></td>
+                                                    <td><?php echo $d['name']; ?></td>
+                                                    <td><?php echo $d['created_at']; ?></td>
+                                                    <td><?php echo $d['title']; ?></td>
+                                                    <td><a class="btn btn-info" name="seenmes" href="edit_message.php?id=<?php echo $d['id']; ?>&edit=false">
+                                                            Xem</a>
+
+                                                        <a class="btn btn-info" name="checkseen" href="chatmessage.php?id=<?php echo $d['id']; ?>&edit=false">
+                                                            Đã xem</a>
+                                                    </td>
+
+                                                </tr>
+                                            <?php
+                                            }
+                                            ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div id="seen" class="tab-pane fade">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-sm" style="text-align: center;">
+                                        <thead>
+                                            <tr>
+                                                <th>STT</th>
+                                                <th>Người gửi</th>
+                                                <th>Ngày gửi</th>
+                                                <th>Tiêu đề</th>
+                                                <th>Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php
+                                            $count = 0;
+                                            foreach ($data_seen as $d) {
+                                            ?>
+                                                <tr>
+                                                    <td><?php echo ++$count; ?></td>
+                                                    <td><?php echo $d['name']; ?></td>
+                                                    <td><?php echo $d['created_at']; ?></td>
+                                                    <td><?php echo $d['title']; ?></td>
+                                                    <td><a class="btn btn-info" name="seenmes" href="edit_message.php?id=<?php echo $d['id']; ?>&edit=false">
+                                                            Xem</a>
+                                                    </td>
+
+                                                </tr>
+                                            <?php
+                                            }
+                                            ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
                         </div>
+                        <hr>
+
                     </div>
+
+
                 </main>
             </div>
         </div>
         <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js">
         </script>
-
+        <script>
+            $(document).ready(function() {
+                $(".nav-tabs a").click(function() {
+                    $(this).tab('show');
+                });
+                $('.nav-tabs a').on('shown.bs.tab', function(event) {
+                    var x = $(event.target).text(); // active tab
+                    var y = $(event.relatedTarget).text(); // previous tab
+                    $(".act span").text(x);
+                    $(".prev span").text(y);
+                });
+            });
+        </script>
         <script>
             window.jQuery || document.write('<script src="/docs/4.5/assets/js/vendor/jquery.slim.min.js"><\/script>')
         </script>

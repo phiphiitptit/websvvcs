@@ -1,9 +1,10 @@
 <?php
 session_start();
 include 'config.php';
+$student = true;
 if (isset($_SESSION['user_data'])) {
-	if ($_SESSION['user_data']['usertype'] != 1) {
-		header("Location:student_dasboard.php");
+	if ($_SESSION['user_data']['usertype'] != 2) {
+        $student = false;
 	}
 }
 $data = array();
@@ -58,7 +59,7 @@ while ($row = mysqli_fetch_assoc($qr)) {
 
 <body>
     <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-        <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="teacher_dasboard.php">VCS Admin</a>
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="teacher_dasboard.php"><?php if (!$student) {echo "VCS Admin";} else {echo "VCS Student";}?></a>
         <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
             data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -77,11 +78,13 @@ while ($row = mysqli_fetch_assoc($qr)) {
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
                 <div
                     class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <?php if (!$student) { ?>
 
                     <div class="btn-group mr-2">
                         <a class="btn btn-info" href="add_homework.php">
                             Thêm Bài tập</a>
                     </div>
+                    <?php }?>
 
                 </div>
                 <div class="table-responsive">
@@ -105,10 +108,23 @@ while ($row = mysqli_fetch_assoc($qr)) {
                                 <td><?php echo floor($d['size']) . ' KB'; ?></td>
                                 <td><?php echo $d['created_at']; ?></td>
                                 <td>
+                                <?php if (!$student) { ?>
+
+                                <a class="btn btn-info" href="view_homework.php?id=<?php echo $d['id']; ?>">
+                                        Xem</a>
+                                        <?php }?>
+
                                     <a class="btn btn-info" href="add_homework_post.php?id=<?php echo $d['id']; ?>">
                                         Dowload</a>
+                                        <?php if ($student) { ?>
+                                        <a class="btn btn-info" href="student_homework.php?id=<?php echo $d['id']; ?>">
+                                        Upload</a>
+                                        <?php }?>
+                                        <?php if (!$student) { ?>
+
                                     <a class="btn btn-info" href="add_homework_post.php?iddelete=<?php echo $d['id']; ?>" onclick="return confirm('Bạn có chắc chắn xóa?')">
                                         Xóa</a>
+                                        <?php }?>
                                 </td>
 
                             </tr>

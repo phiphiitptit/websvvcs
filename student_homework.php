@@ -2,29 +2,10 @@
 session_start();
 include 'config.php';
 if (isset($_SESSION['user_data'])) {
-    $student=false;
-    if ($_SESSION['user_data']['usertype'] != 1) {
-		$student=true;
-	}
-    $name = "";
-    $email = "";
-    $id = 0;
-    $password = "";
-    $telephone = "";
-    $username = "";
-    if (isset($_SESSION['user_data']['id'])) {
-        $iduser = $_SESSION['user_data']['id'];
-        $record = mysqli_query($con, "SELECT * FROM user WHERE id=$iduser");
-        if (count(array($record)) == 1) {
-            $data = mysqli_fetch_array($record);
-            $name = $data['name'];
-            $email = $data['email'];
-            $telephone = $data['telephone'];
-        }
+    if ($_SESSION['user_data']['usertype'] != 2) {
+        header("Location:teacher_dasboard.php");
     }
-
-
-
+    $id = $_GET['id'];
 
 ?>
     <!DOCTYPE html>
@@ -71,35 +52,32 @@ if (isset($_SESSION['user_data'])) {
 
     <body>
         <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-        <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="teacher_dasboard.php"><?php if (!$student) {echo "VCS Admin";} else {echo "VCS Student";}?></a>
+            <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="teacher_dasboard.php">VCS Student</a>
             <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
-            <ul class="navbar-nav ">
-
-                <li class="nav-item">
-                    <a class="nav-link " href="logout.php">Đăng xuất</a>
+            <ul class="navbar-nav px-3">
+                <li class="nav-item text-nowrap">
+                    <a class="nav-link" href="logout.php">Đăng xuất</a>
                 </li>
             </ul>
-
         </nav>
 
         <div class="container-fluid">
             <div class="row">
-                <?php include 'teacher_menu.php' ?>
+            <?php include 'teacher_menu.php'?>
 
                 <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-
-                        <div class="btn-group mr-2">
-                            <a class="btn btn-info" href="teacher_dasboard.php">
-                                Quay lại</a>
-                        </div>
+                       
+                            <div class="btn-group mr-2">
+                                <a class="btn btn-info" href="homework.php">
+                                    Quay lại</a>
+                            </div>
 
 
                     </div>
-                    <form action="edit_info_post.php" method="post">
+                    <form  action="student_homework_post.php" method="post" enctype="multipart/form-data" >
                         <div class="row">
                             <?php if (isset($_REQUEST['error'])) { ?>
                                 <div class="col-lg-12">
@@ -116,24 +94,15 @@ if (isset($_SESSION['user_data'])) {
                         </div>
                         <div class="form-group col-md-6">
 
-                            <input type="hidden" class="form-control" name="id" value="<?php echo $iduser; ?>">
+                            <input type="hidden" class="form-control" name="id" value="<?php echo $id; ?>">
                         </div>
                         <div class="form-group col-md-6">
-                            <label for="inputName">Họ tên</label>
-                            <input type="text" class="form-control" name="name" required="required" id="inputName" value="<?php echo $name; ?>">
+                            <label for="inputDownload">File Upload</label>
+                            <input type="file" class="form-control" name="download" required="required" id="inputDownload">
                         </div>
-
-                        <div class="form-group col-md-6">
-                            <label for="inputEmail">Email</label>
-                            <input type="email" class="form-control" id="inputEmail" name="email" required="required" value="<?php echo $email; ?>">
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label for="inputTel">Điện thoại</label>
-                            <input type="text" class="form-control" id="inputTel" name="telephone" required="required" value="<?php echo $telephone; ?>">
-                        </div>
-
-                        <button class="btn btn-primary col-md-6" type="submit" name="update" style="background: #556B2F;">Cập nhật</button>
-
+                       
+                            <button type="submit" class="btn btn-primary col-md-6" name="save">Nộp bài tập</button>
+                      
 
                     </form>
                 </main>

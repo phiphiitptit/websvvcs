@@ -3,10 +3,11 @@
 session_start();
 include "config.php";
 if (isset($_SESSION['user_data'])) {
+   
     if ($_SESSION['user_data']['usertype'] != 1) {
         header("Location:student_dasboard.php");
     }
-      
+   
     // Uploads challenge
     if (isset($_POST['save'])) { // if save button on the form is clicked
         // name of the uploaded file

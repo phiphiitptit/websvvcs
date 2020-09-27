@@ -3,19 +3,27 @@
 session_start();
 include "config.php";
 if (isset($_SESSION['user_data'])) {
+    $student = false;
     if ($_SESSION['user_data']['usertype'] != 1) {
-        header("Location:student_dasboard.php");
+        $student=true;
     }
 
 
     // Uploads files
-    if (isset($_POST['save'])) { // if save button on the form is clicked
+    if (isset($_POST['save']) & !$student) { // if save button on the form is clicked
         // name of the uploaded file
         $name = $_POST['subjectName'];
         $filename = $_FILES['download']['name'];
-
+        $r = mysqli_query($con,"SHOW TABLE STATUS LIKE 'homework'");
+        $row = mysqli_fetch_assoc($r);
+        $idfile = $row['Auto_increment'];
+        $desfolder = 'upload/teacher/gv'.$idfile;
+        if(!mkdir($desfolder,0, true)){
+            die('Tao folder thất bại');
+        };
+      
         // destination of the file on the server
-        $destination = 'upload/' . $filename;
+        $destination = $desfolder.'/'. $filename;
 
         // get the file extension
         $extension = pathinfo($filename, PATHINFO_EXTENSION);
@@ -52,7 +60,7 @@ if (isset($_SESSION['user_data'])) {
         $result = mysqli_query($con, $sql);
 
         $file = mysqli_fetch_assoc($result);
-        $filepath = 'upload/' . $file['namefile'];
+        $filepath = 'upload/teacher/gv'.$id.'/' . $file['namefile'];
 
         if (file_exists($filepath)) {
             header('Content-Description: File Transfer');
@@ -61,13 +69,13 @@ if (isset($_SESSION['user_data'])) {
             header('Expires: 0');
             header('Cache-Control: must-revalidate');
             header('Pragma: public');
-            header('Content-Length: ' . filesize('upload/' . $file['namefile']));
+            header('Content-Length: ' . filesize($filepath));
 
             //This part of code prevents files from being corrupted after download
             ob_clean();
             flush();
 
-            readfile('upload/' . $file['namefile']);
+            readfile($filepath);
 
             // Now update downloads count
             $newCount = $file['download'] + 1;
@@ -77,12 +85,12 @@ if (isset($_SESSION['user_data'])) {
         }
     }
 
-    if (isset($_GET['iddelete'])) {
+    if (isset($_GET['iddelete']) & !$student) {
         $id = $_GET['iddelete'];
         $sql = "SELECT * FROM homework WHERE id=$id";
         $result = mysqli_query($con, $sql);
         $file = mysqli_fetch_assoc($result);
-        $path = $_SERVER['DOCUMENT_ROOT'].'items/'.$file['namefile'].'';
+        $path = $_SERVER['DOCUMENT_ROOT'].'upload/teacher/gv'.$id.'/'.$file['namefile'].'';
         unlink($path);
         $qr = mysqli_query($con, "DELETE FROM homework WHERE id=$id");
         if ($qr) {

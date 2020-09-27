@@ -2,31 +2,37 @@
 session_start();
 include 'config.php';
 if (isset($_SESSION['user_data'])) {
-    $student=false;
+    $student = false;
     if ($_SESSION['user_data']['usertype'] != 1) {
-		$student=true;
-	}
-    $name = "";
-    $email = "";
-    $id = 0;
-    $password = "";
-    $telephone = "";
-    $username = "";
+        $student = true;
+    }
     $update = false;
+    if(isset($_GET['edit'])){
+        if($_GET['edit']=='false'){
+            $seen=false;
+        }
+        if($_GET['edit']=='true'){
+            $seen=true;
+        }
 
+    }
     if (isset($_GET['id'])) {
+
         $id = $_GET['id'];
-        $update = true;
-        $record = mysqli_query($con, "SELECT * FROM user WHERE id=$id");
-        if (count(array($record)) == 1) {
-            $data = mysqli_fetch_array($record);
+
+        $qr = mysqli_query($con, "SELECT user.name,chat_message.from_user_id,chat_message.title,chat_message.msg,chat_message.created_at,chat_message.id
+        FROM  chat_message
+        left join user ON user.id=chat_message.from_user_id
+        where chat_message.id=$id");
+        if (count(array($qr)) == 1) {
+            $data = mysqli_fetch_array($qr);
+            $id = $data['id'];
+            $title = $data['title'];
             $name = $data['name'];
-            // $username = $data['username'];
-            // $password = $data['password'];
-            $email = $data['email'];
-            $telephone = $data['telephone'];
+            $msg = $data['msg'];
         }
     }
+   
 ?>
     <!DOCTYPE html>
     <html>
@@ -72,7 +78,11 @@ if (isset($_SESSION['user_data'])) {
 
     <body>
         <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-            <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="teacher_dasboard.php"><?php if (!$student) {echo "VCS Admin";} else {echo "VCS Student";}?></a>
+            <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="teacher_dasboard.php"><?php if (!$student) {
+                                                                                                echo "VCS Admin";
+                                                                                            } else {
+                                                                                                echo "VCS Student";
+                                                                                            } ?></a>
             <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -89,7 +99,7 @@ if (isset($_SESSION['user_data'])) {
                 <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
                     <div class="col-lg-2">
                         <div class="btn-group mr-2">
-                            <a class="btn btn-info" href="teacher_dasboard.php">
+                            <a class="btn btn-info" href="chatmessage.php">
                                 Quay lại</a>
                         </div>
                     </div>
@@ -115,26 +125,60 @@ if (isset($_SESSION['user_data'])) {
                                     <table class="table">
                                         <thead>
                                             <tr>
-                                                <th>Thông tin chi tiết</th>
-                                                <th class="text-center"><a class="btn btn-sm btn-outline-success" href="add_chatmessage.php?id=<?php echo $id?>">Nhắn tin</a></th>
+                                                <th>Gửi tin nhắn cho <?php echo $name; ?></th>
+                                                <th class="text-center"><a class="btn btn-sm btn-outline-success" name="rep" href="add_chatmessage.php?id=<?php echo $data['from_user_id']; ?>">Trả lời</a></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <div class="table-responsive">
                                                 <table class="table table-striped table-sm" style="text-align: center;">
                                                     <thead>
-                                                        <tr style="   line-height: 40px;">
-                                                            <th>Họ tên</th>
-                                                            <th><?php echo $name; ?></th>
-                                                        </tr>
-                                                        <tr style="   line-height: 40px;">
-                                                            <th>Email</th>
-                                                            <th><?php echo $email; ?></th>
-                                                        </tr>
-                                                        <tr style="   line-height: 40px;">
-                                                            <th>Số điện thoại</th>
-                                                            <th><?php echo $telephone; ?></th>
-                                                        </tr>
+                                                        <form action="edit_message_post.php" method="post">
+                                                            <div class="row">
+                                                                <?php if (isset($_REQUEST['error'])) { ?>
+                                                                    <div class="col-lg-12">
+                                                                        <span class="alert alert-danger" style="display: block;"><?php echo $_REQUEST['error']; ?></span>
+                                                                    </div>
+                                                                <?php } ?>
+                                                            </div>
+                                                            <div class="row">
+                                                                <?php if (isset($_REQUEST['success'])) { ?>
+                                                                    <div class="col-lg-12">
+                                                                        <span class="alert alert-success" style="display: block;"><?php echo $_REQUEST['success']; ?></span>
+                                                                    </div>
+                                                                <?php } ?>
+                                                            </div>
+                                                            <div class="form-group col-md-6">
+
+                                                                <input type="hidden" class="form-control" name="id" value="<?php echo $id; ?>">
+                                                            </div>
+                                                            <div class="form-group col-md-6">
+                                                                <label for="inputName"><b>Tiêu đề</b></label>
+                                                                <?php if (!$seen) : ?>
+                                                                    <p><?php echo $title;?></p>
+                                                                <?php else : ?>
+                                                                    <input type="text" class="form-control" name="title" required="required" id="inputName" value="<?php if ($seen) echo $title; ?>">
+                                                                <?php endif ?>
+                                                            </div>
+
+                                                            <div class="form-group col-md-6">
+                                                                <label for="inputUser"><b>Tin nhắn</b></label>
+                                                                <?php if (!$seen) : ?>
+                                                                    <p><?php echo $msg; ?></p>
+                                                                <?php else : ?>
+                                                                    <textarea type="text" rows="5" col="40" class="form-control" id="inputUser" name="msg" required="required" >
+                                                                    <?php if ($seen) echo $msg; ?>  
+                                                                </textarea>
+                                                                <?php endif ?>
+                                                            </div>
+                                                            <?php if ($seen) : ?>
+                                                                <button class="btn btn-primary col-md-6" type="submit" name="update" style="background: #556B2F;">Gửi tin nhắn</button>
+
+                                                            <?php endif ?>
+
+
+
+                                                        </form>
                                                     </thead>
                                                 </table>
                                             </div>
@@ -159,6 +203,7 @@ if (isset($_SESSION['user_data'])) {
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
         <script src="dashboard.js"></script>
     </body>
+
     </html>
 <?php
 } else {

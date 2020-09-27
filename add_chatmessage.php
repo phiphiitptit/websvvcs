@@ -2,18 +2,15 @@
 session_start();
 include 'config.php';
 if (isset($_SESSION['user_data'])) {
-    $student=false;
+    $student = false;
     if ($_SESSION['user_data']['usertype'] != 1) {
-		$student=true;
-	}
-    $name = "";
-    $email = "";
-    $id = 0;
-    $password = "";
-    $telephone = "";
-    $username = "";
+        $student = true;
+    }
     $update = false;
-
+    $seen = false;
+    if (isset($_POST['seenmes'])) {
+        $seen=true;
+    }
     if (isset($_GET['id'])) {
         $id = $_GET['id'];
         $update = true;
@@ -72,7 +69,11 @@ if (isset($_SESSION['user_data'])) {
 
     <body>
         <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-            <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="teacher_dasboard.php"><?php if (!$student) {echo "VCS Admin";} else {echo "VCS Student";}?></a>
+            <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="teacher_dasboard.php"><?php if (!$student) {
+                                                                                                echo "VCS Admin";
+                                                                                            } else {
+                                                                                                echo "VCS Student";
+                                                                                            } ?></a>
             <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -115,26 +116,52 @@ if (isset($_SESSION['user_data'])) {
                                     <table class="table">
                                         <thead>
                                             <tr>
-                                                <th>Thông tin chi tiết</th>
-                                                <th class="text-center"><a class="btn btn-sm btn-outline-success" href="add_chatmessage.php?id=<?php echo $id?>">Nhắn tin</a></th>
+                                                <th>Gửi tin nhắn cho <?php echo $name; ?></th>
+                                                <th class="text-center"><a class="btn btn-sm btn-outline-success" href="add_chatmessage.php?id=<?php echo $id ?>">Nhắn tin</a></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <div class="table-responsive">
                                                 <table class="table table-striped table-sm" style="text-align: center;">
                                                     <thead>
-                                                        <tr style="   line-height: 40px;">
-                                                            <th>Họ tên</th>
-                                                            <th><?php echo $name; ?></th>
-                                                        </tr>
-                                                        <tr style="   line-height: 40px;">
-                                                            <th>Email</th>
-                                                            <th><?php echo $email; ?></th>
-                                                        </tr>
-                                                        <tr style="   line-height: 40px;">
-                                                            <th>Số điện thoại</th>
-                                                            <th><?php echo $telephone; ?></th>
-                                                        </tr>
+                                                        <form action="add_chatmessage_post.php" method="post">
+                                                            <div class="row">
+                                                                <?php if (isset($_REQUEST['error'])) { ?>
+                                                                    <div class="col-lg-12">
+                                                                        <span class="alert alert-danger" style="display: block;"><?php echo $_REQUEST['error']; ?></span>
+                                                                    </div>
+                                                                <?php } ?>
+                                                            </div>
+                                                            <div class="row">
+                                                                <?php if (isset($_REQUEST['success'])) { ?>
+                                                                    <div class="col-lg-12">
+                                                                        <span class="alert alert-success" style="display: block;"><?php echo $_REQUEST['success']; ?></span>
+                                                                    </div>
+                                                                <?php } ?>
+                                                            </div>
+                                                            <div class="form-group col-md-6">
+
+                                                                <input type="hidden" class="form-control" name="id" value="<?php echo $id; ?>">
+                                                            </div>
+                                                            <div class="form-group col-md-6">
+                                                                <label for="inputName">Tiêu đề</label>
+                                                                <input type="text" class="form-control" name="title" required="required" id="inputName" >
+                                                            </div>
+
+                                                            <div class="form-group col-md-6">
+                                                                <label for="inputUser">Tin nhắn</label>
+                                                                <textarea type="text" rows="5" class="form-control" id="inputUser" name="msg" required="required" >
+                                                                </textarea>
+                                                            </div>
+                                                            <?php if ($update == true) : ?>
+                                                                <button class="btn btn-primary col-md-6" type="submit" name="sendmessage" style="background: #556B2F;">Gửi tin nhắn</button>
+                                                            <?php else : ?>
+                                                                <button type="submit" class="btn btn-primary col-md-6" name="edit">Cập nhập</button>
+                                                            <?php endif ?>
+
+
+
+                                                        </form>
                                                     </thead>
                                                 </table>
                                             </div>
@@ -159,6 +186,7 @@ if (isset($_SESSION['user_data'])) {
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
         <script src="dashboard.js"></script>
     </body>
+
     </html>
 <?php
 } else {

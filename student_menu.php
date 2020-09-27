@@ -4,7 +4,7 @@ echo'
 <div class="sidebar-sticky pt-3">
     <ul class="nav flex-column">
         <li class="nav-item">
-            <a class="nav-link active" href="teacher_dasboard.php">
+            <a class="nav-link active" href="student_dasboard.php">
                 <span class="iconify" data-icon="bi:file-person" data-inline="false"></span>
                 Danh sách người dùng <span class="sr-only">(current)</span>
             </a>
