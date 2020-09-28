@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th9 26, 2020 lúc 07:44 PM
+-- Thời gian đã tạo: Th9 28, 2020 lúc 08:37 PM
 -- Phiên bản máy phục vụ: 10.4.13-MariaDB
 -- Phiên bản PHP: 7.2.31
 
@@ -140,7 +140,8 @@ INSERT INTO `sub_result` (`id`, `subject_id`, `name`, `id_user`, `created_at`) V
 (10, 6, 'test2.txt', 12, '2020-09-25 16:25:15'),
 (11, 6, 'test.txt', 12, '2020-09-25 16:25:52'),
 (12, 6, 'Hoa Hai Duong.txt', 12, '2020-09-25 16:27:20'),
-(13, 6, 'test.txt', 12, '2020-09-25 16:27:27');
+(13, 6, 'test.txt', 12, '2020-09-25 16:27:27'),
+(14, 6, 'test2.txt', 21, '2020-09-28 20:28:16');
 
 -- --------------------------------------------------------
 
@@ -278,7 +279,7 @@ ALTER TABLE `result_data`
 -- AUTO_INCREMENT cho bảng `sub_result`
 --
 ALTER TABLE `sub_result`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT cho bảng `user`

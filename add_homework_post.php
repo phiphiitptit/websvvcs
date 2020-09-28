@@ -18,7 +18,7 @@ if (isset($_SESSION['user_data'])) {
         $row = mysqli_fetch_assoc($r);
         $idfile = $row['Auto_increment'];
         $desfolder = 'upload/teacher/gv'.$idfile;
-        if(!mkdir($desfolder,0, true)){
+        if(!mkdir($desfolder,0777, true)){
             die('Tao folder thất bại');
         };
       
@@ -84,6 +84,40 @@ if (isset($_SESSION['user_data'])) {
             exit;
         }
     }
+    // Downloads files
+    if (isset($_GET['idsub'])) {
+        $id = $_GET['idsub'];
+
+        // fetch file to download from database
+        $sql = "SELECT * FROM sub_result WHERE id=$id";
+        $result = mysqli_query($con, $sql);
+
+        $file = mysqli_fetch_assoc($result);
+        $filepath = 'upload/student/sv'.$id.'/' . $file['name'];
+
+        if (file_exists($filepath)) {
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename=' . basename($filepath));
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Pragma: public');
+            header('Content-Length: ' . filesize($filepath));
+
+            //This part of code prevents files from being corrupted after download
+            ob_clean();
+            flush();
+
+            readfile($filepath);
+
+            // Now update downloads count
+            $newCount = $file['download'] + 1;
+            $updateQuery = "UPDATE homework SET download=$newCount WHERE id=$id";
+            mysqli_query($con, $updateQuery);
+            exit;
+        }
+    }
+
 
     if (isset($_GET['iddelete']) & !$student) {
         $id = $_GET['iddelete'];

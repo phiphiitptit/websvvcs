@@ -9,7 +9,7 @@ if (isset($_SESSION['user_data'])) {
    
     if (isset($_GET['id'])) {
         $id = $_GET['id'];
-        $qr = mysqli_query($con, "SELECT user.name,homework.subject_name,sub_result.created_at
+        $qr = mysqli_query($con, "SELECT user.name,homework.subject_name,sub_result.created_at,sub_result.id
          FROM  sub_result
          Join user ON user.id=sub_result.id_user
          join homework on homework.id = sub_result.subject_id
@@ -109,7 +109,7 @@ if (isset($_SESSION['user_data'])) {
                                         <td><?php echo $d['created_at']; ?></td>
                                         <td>
                               
-                                    <a class="btn btn-info" href="add_homework_post.php?id=<?php echo $d['id']; ?>">
+                                    <a class="btn btn-info" href="add_homework_post.php?idsub=<?php echo $d['id']; ?>">
                                         Dowload</a>
                                 </td>
 

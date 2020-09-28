@@ -17,7 +17,7 @@ if (isset($_SESSION['user_data'])) {
         $row = mysqli_fetch_assoc($r);
         $idfile = $row['Auto_increment'];
         $desfolder = 'upload/student/sv'.$idfile;
-        if(!mkdir($desfolder,0, true)){
+        if(!mkdir($desfolder,0777, true)){
             die('Tao folder thất bại');
         };
         // destination of the file on the server

@@ -20,6 +20,7 @@ if (isset($_SESSION['user_data'])) {
             $hint = $data['hint'];
         }
     }
+    $check = false;
     if (isset($_POST['submit'])) { // if save button on the form is clicked
         // name of the uploaded file
         $idfile = $_GET['id'];
@@ -38,7 +39,7 @@ if (isset($_SESSION['user_data'])) {
         }
         $answer = $_POST['answer'];
         //Output findings
-        $check = false;
+       
         $show ="";
         foreach ($results_array as $value) {
             if (basename($value,".txt") == $answer) {
@@ -48,7 +49,13 @@ if (isset($_SESSION['user_data'])) {
             } 
         }
         if($check){
-            header("Location:challenge/chall".$idfile."/".$value);
+            $des = 'challenge/chall'.$idfile.'/'.$value;
+            $content="";
+            $read = file($des);
+            foreach ($read as $line) {
+                $content= $content.$line."<br>";
+            }   
+            // header("Location:challenge/chall".$idfile."/".$value);
         }
         else{
             header("Location:view_challenge.php?id=" . $id . "&error=Thử thách thất bại");
@@ -166,6 +173,12 @@ if (isset($_SESSION['user_data'])) {
 
 
                         <button type="submit" class="btn btn-primary col-md-6" name="submit">Submit Challenge</button>
+                       <?php if ($check) { ?>
+                         <div class="form-group col-md-6">
+                            <label for="inputAnswer">Đáp án</label>
+                           <p><?php echo $content ?></p>
+                        </div>
+                        <?php } ?>
 
 
                     </form>

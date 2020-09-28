@@ -19,7 +19,7 @@ if (isset($_SESSION['user_data'])) {
         $hint = $_POST['hint'];
         $filename = $_FILES['download']['name'];
         $desfolder ='challenge/chall'.$idfile;
-        if(!mkdir($desfolder,0, true)){
+        if(!mkdir($desfolder,0777, true)){
             die('Tao folder thất bại');
         };
         // destination of the file on the server
